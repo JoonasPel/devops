@@ -3,7 +3,7 @@ const http = require("http");
 const cors = require("cors");
 
 // Nodejs server confs
-const PORT = 3001;
+const PORT = 8000;
 const app = express();
 app.use(cors({
   origin: ["http://localhost:3000"],
@@ -14,6 +14,7 @@ app.use(express.json());
 // Listen for requests
 app.get("/", (req, res) => {
   console.log("service2 received a request!", req.body);
+  console.log("ip:", req?.socket?.remoteAddress, req?.socket?.remotePort);
   res.send("Hi from service2");
 });
 
