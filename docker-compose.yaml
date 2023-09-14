@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  service1joonaspelttari:
+    build:
+      context: ./service1
+    container_name: 'service1joonaspelttari'
+    networks:
+      - app-network
+    volumes:
+      - ./logs:/app/logs
+
+networks:
+  app-network:
+    driver: bridge
