@@ -18,6 +18,10 @@ app.get("/", (req, res) => {
   res.send("Hi from service2");
 });
 
-// Start server
-http.createServer(app).listen(PORT);
-console.log("service2 running and listening for port", PORT);
+// Wait 2 secs and then start the server
+new Promise(resolve => {
+  setTimeout(resolve, 2000);
+}).then(() => {
+  http.createServer(app).listen(PORT);
+  console.log("service2 running and listening for port", PORT);
+});
