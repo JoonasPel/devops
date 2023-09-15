@@ -9,6 +9,7 @@ const filepath = path.join(dirname, '../logs/service1.log');
 
 /**
  * Write text to log file and add newline
+ * appendFileSync closes file automatically after writing
  * @param {*} text to write
  */
 export const writeToLogFile = (text) => {

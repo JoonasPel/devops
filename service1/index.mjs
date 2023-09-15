@@ -29,5 +29,6 @@ const startLogger = async () => {
     i++;
   }
   writeToLogFile('STOP');
+  await sendRequest('STOP', service2name, service2PORT);
   process.exit(0);
 };
