@@ -3,7 +3,7 @@ import {
   writeToLogFile, 
   createOrClearLogFile, 
   sleep, 
-  send }
+  sendRequest }
 from './utils/utils.mjs';
 
 // configs
@@ -20,12 +20,14 @@ dns.lookup(service2name, (error, address) => {
 const startLogger = async () => {
   createOrClearLogFile();
   let i = 1;
-  while (i<8){
+  while (i<21){
     const date = new Date();
     let text = `${i} ${date.toISOString()} ${service2Address}:${service2PORT}`;
     writeToLogFile(text);
+    await sendRequest(text, service2name, service2PORT);
     await sleep(2000);
-    await send(i, service2name, service2PORT);
     i++;
   }
+  writeToLogFile('STOP');
+  process.exit(0);
 };

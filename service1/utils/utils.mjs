@@ -41,17 +41,16 @@ export const sleep = (timeMS) => {
 /**
  * todo
  */
-export const send = async (index, service2name, service2PORT) => {
+export const sendRequest = async (text, service2name, service2PORT) => {
   const URL = 'http://'+service2name+':'+service2PORT;
   try {
     const res = await axios.get(URL, {
       data: {
-        moi: "Joonas!!!!",
-        index,
+        text,
       },
       timeout: 5000,
     });
   } catch (error) {
-    console.log(error)
+    writeToLogFile(error?.message);
   }
 };
