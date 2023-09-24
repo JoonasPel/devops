@@ -4,7 +4,7 @@ const cors = require("cors");
 const utils = require('./utils/utils.js');
 
 // Nodejs server confs
-const PORT = 8000;
+const PORT = 8001;
 const app = express();
 app.use(cors({
   origin: ["http://localhost:3000"],
