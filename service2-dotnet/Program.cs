@@ -13,8 +13,9 @@ class Program {
   private static readonly string _url = "http://"+_serviceName+":"+_port;
 
   public static void Main() {
-    CreateEmptyLogFile();
+    CreateEmptyLogFile(filename: "service2.log");
     Thread.Sleep(2000);
+
     var host = new WebHostBuilder()
       .UseKestrel()
       .UseUrls(_url)
@@ -47,7 +48,7 @@ class Program {
     }
     return text;
   }
-
+  
   private static void WriteToLogFile(string text) {
     try {
       string exePath = System.Reflection.Assembly.GetEntryAssembly().Location;
@@ -60,11 +61,11 @@ class Program {
     }
   }
 
-  private static void CreateEmptyLogFile() {
+  private static void CreateEmptyLogFile(string filename) {
     try {
       string exePath = System.Reflection.Assembly.GetEntryAssembly().Location;
       string exeDir = Path.GetDirectoryName(exePath);
-      using StreamWriter writer = new(exeDir + "/logs/service2.log");
+      using StreamWriter writer = new(exeDir + "/logs/" + filename);
       writer.Close();
     } catch (Exception e) {  
       Console.WriteLine("error creating log file");
