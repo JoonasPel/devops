@@ -12,7 +12,7 @@ services:
 
   service2joonaspelttari:
     build:
-      context: ./service2-dotnet
+      context: ./service2
     container_name: 'service2joonaspelttari'
     networks:
       - app-network
