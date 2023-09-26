@@ -11,9 +11,11 @@ class Program {
   private static readonly string _serviceName = "service2joonaspelttari";
   private static readonly string _port = "8000";
   private static readonly string _url = "http://"+_serviceName+":"+_port;
+  private static readonly string _logFileName = "service2.log";
+  private static readonly string _stopSignal = "STOP";
 
   public static void Main() {
-    CreateEmptyLogFile(filename: "service2.log");
+    CreateOrWriteToLogFile(createOnly: true, filename: _logFileName);
     Thread.Sleep(2000);
 
     var host = new WebHostBuilder()
@@ -22,11 +24,12 @@ class Program {
       .Configure(app => {
         app.Run(async (context) => {
           string text = await GetValueByKeyFromRequestBody(context, "text");
-          if (text.Equals("STOP")) {
+          if (text.Equals(_stopSignal)) {
             ExitApp(app);
           } else {
             text = CreateLogText(context, text);  
-            WriteToLogFile(text);
+            CreateOrWriteToLogFile(
+              createOnly: false, filename: _logFileName, textToWrite: text);
           }
         });
       })
@@ -49,23 +52,16 @@ class Program {
     return text;
   }
   
-  private static void WriteToLogFile(string text) {
+  private static void CreateOrWriteToLogFile
+  (bool createOnly, string filename, string textToWrite = "") {
     try {
       string exePath = System.Reflection.Assembly.GetEntryAssembly().Location;
       string exeDir = Path.GetDirectoryName(exePath);
-      using StreamWriter writer = new(exeDir + "/logs/service2.log", true);
-      writer.WriteLine(text);
-      writer.Close();
-    } catch (Exception e) {  
-      Console.WriteLine("error creating log file");
-    }
-  }
-
-  private static void CreateEmptyLogFile(string filename) {
-    try {
-      string exePath = System.Reflection.Assembly.GetEntryAssembly().Location;
-      string exeDir = Path.GetDirectoryName(exePath);
-      using StreamWriter writer = new(exeDir + "/logs/" + filename);
+      bool append = !createOnly;
+      using StreamWriter writer = new(exeDir + "/logs/" + filename, append);
+      if (append) {
+        writer.WriteLine(textToWrite);
+      }
       writer.Close();
     } catch (Exception e) {  
       Console.WriteLine("error creating log file");
