@@ -1,0 +1,12 @@
+CONTAINER ID   IMAGE                           COMMAND                  CREATED          STATUS         PORTS     NAMES
+d3a3a6fad134   devops-service1joonaspelttari   "docker-entrypoint.s…"   19 minutes ago   Up 4 seconds             service1joonaspelttari
+3b543cc670d9   devops-service2joonaspelttari   "dotnet service.dll"     19 minutes ago   Up 4 seconds             service2joonaspelttari
+
+NETWORK ID     NAME                  DRIVER    SCOPE
+6e78224e3066   app_default           bridge    local
+6bdd5b83698c   bridge                bridge    local
+3a135cfc15a7   devops_app-network    bridge    local
+4fcd50cd4a84   host                  host      local
+68d186b4f75d   none                  null      local
+7036f6aa3f95   unknown_app-network   bridge    local
+976e970bea1c   unknown_default       bridge    local
