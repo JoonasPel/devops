@@ -13,15 +13,23 @@ dotenv.config();
 const service2name = process.env.service2ContainerName;
 const rabbitmqName = process.env.rabbitmqContainerName;
 const service2PORT = process.env.service2PORT;
-let service2Address, rabbitChannel, rabbitConnection;
+const rabbitMessagesQueue = process.env.rabbitMessagesQueue;
+const rabbitMessageTopic = process.env.rabbitMessageTopic;
+const rabbitRoutingKey = process.env.rabbitMessagesRoutingKey;
+let service2Address, channel, connection;
 
 // starts rabbitmq connection
 async function startRabbit() {
   try {
     const rabbitURL = "amqp://guest:guest@"+rabbitmqName+":5672";
-    rabbitConnection = await amqp.connect(rabbitURL);
-    rabbitChannel = await rabbitConnection.createChannel();
-    //await rabbitChannel.assertQueue("queuename", { durable: false });
+    connection = await amqp.connect(rabbitURL);
+    channel = await connection.createChannel();
+    await channel.assertExchange(rabbitMessageTopic, 'topic', {durable: false});
+    await channel.assertQueue(rabbitMessagesQueue, {durable: false});
+    await channel.bindQueue(rabbitMessagesQueue, rabbitMessageTopic, rabbitRoutingKey);
+    
+    channel.publish(rabbitMessageTopic, 'anything.message',
+      Buffer.from("Moi Joonas"));
     console.log("service1 connected to Rabbit");
   } catch (error) {
     console.error("service1 got error when trying to setup Rabbit: ", error);
@@ -29,7 +37,7 @@ async function startRabbit() {
   }
 };
 
-await sleep(15000);
+await sleep(15000); // todo replace with wait-for-it.sh
 await startRabbit();
 // get address of service 2
 dns.lookup(service2name, (error, address) => {
