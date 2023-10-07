@@ -10,7 +10,7 @@ services:
     volumes:
       - ./logs:/app/logs
     env_file:
-      - .env
+      - .env.configs
 
   service2joonaspelttari:
     build:
@@ -21,7 +21,7 @@ services:
     volumes:
       - ./logs:/app/logs
     env_file:
-      - .env
+      - .env.configs
 
   rabbitmqjoonaspelttari:
     image: rabbitmq:3.12-management-alpine
