@@ -4,20 +4,32 @@ services:
   service1joonaspelttari:
     build:
       context: ./service1
-    container_name: 'service1joonaspelttari'
+    container_name: ${service1ContainerName}
     networks:
       - app-network
     volumes:
       - ./logs:/app/logs
+    env_file:
+      - .env
 
   service2joonaspelttari:
     build:
       context: ./service2
-    container_name: 'service2joonaspelttari'
+    container_name: ${service2ContainerName}
     networks:
       - app-network
     volumes:
       - ./logs:/app/logs
+    env_file:
+      - .env
+
+  rabbitmqjoonaspelttari:
+    image: rabbitmq:3.12-management-alpine
+    container_name: ${rabbitmqContainerName}
+    ports:
+      - 15672:15672
+    networks:
+      - app-network
 
 networks:
   app-network:

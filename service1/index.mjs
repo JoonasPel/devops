@@ -1,4 +1,6 @@
+import dotenv from 'dotenv';
 import dns from 'dns';
+import amqp from 'amqplib';
 import { 
   writeToLogFile, 
   createOrClearLogFile, 
@@ -7,14 +9,32 @@ import {
 from './utils/utils.mjs';
 
 // configs
-const service2name = 'service2joonaspelttari';
-const service2PORT = 8000;
-let service2Address;
+dotenv.config();
+const service2name = process.env.service2ContainerName;
+const rabbitmqName = process.env.rabbitmqContainerName;
+const service2PORT = process.env.service2PORT;
+let service2Address, rabbitChannel, rabbitConnection;
 
+// starts rabbitmq connection
+async function startRabbit() {
+  try {
+    const rabbitURL = "amqp://guest:guest@"+rabbitmqName+":5672";
+    rabbitConnection = await amqp.connect(rabbitURL);
+    rabbitChannel = await rabbitConnection.createChannel();
+    //await rabbitChannel.assertQueue("queuename", { durable: false });
+    console.log("service1 connected to Rabbit");
+  } catch (error) {
+    console.error("service1 got error when trying to setup Rabbit: ", error);
+    process.exit(1);
+  }
+};
+
+await sleep(15000);
+await startRabbit();
 // get address of service 2
 dns.lookup(service2name, (error, address) => {
   if (!error) { service2Address = address; }
-  startLogger();
+  //startLogger();
 });
 
 const startLogger = async () => {
