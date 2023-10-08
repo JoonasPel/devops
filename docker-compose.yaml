@@ -7,8 +7,6 @@ services:
     container_name: ${service1ContainerName}
     networks:
       - app-network
-    volumes:
-      - ./logs:/app/logs
     env_file:
       - .env.configs
 
@@ -18,8 +16,6 @@ services:
     container_name: ${service2ContainerName}
     networks:
       - app-network
-    volumes:
-      - ./logs:/app/logs
     env_file:
       - .env.configs
 
