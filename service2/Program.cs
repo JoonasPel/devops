@@ -5,36 +5,29 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Text.Json;
+using System.Collections;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using System.Text;
 
 
 class Program {
-  private static readonly string _serviceName = "service2joonaspelttari";
-  private static readonly string _port = "8000";
-  private static readonly string _url = "http://"+_serviceName+":"+_port;
-  private static readonly string _logFileName = "service2.log";
-  private static readonly string _stopSignal = "STOP";
+  private static readonly string? 
+  _serviceName = Environment.GetEnvironmentVariable("service2ContainerName")
+  , _port = Environment.GetEnvironmentVariable("service2Port")
+  , _url = "http://"+_serviceName+":"+_port
+  , _rabbitTopic = Environment.GetEnvironmentVariable("rabbitLogTopic");
+  private static IModel? rabbitChannel;
 
   public static void Main() {
-    CreateOrWriteToLogFile(createOnly: true, filename: _logFileName);
-    Thread.Sleep(2000);
-
-    var host = new WebHostBuilder()
-      .UseKestrel()
-      .UseUrls(_url)
-      .Configure(app => {
-        app.Run(async (context) => {
-          string text = await GetValueByKeyFromRequestBody(context, "text");
-          if (text.Equals(_stopSignal)) {
-            ExitApp(app);
-          } else {
-            text = CreateLogText(context, text);  
-            CreateOrWriteToLogFile(
-              createOnly: false, filename: _logFileName, textToWrite: text);
-          }
-        });
-      })
-      .Build();
-
+    Thread.Sleep(20000); // TODO wait-for-it.sh
+    rabbitChannel = ConnectToRabbit();
+    var consumer = CreateRabbitConsumer();
+    startRabbitConsuming(consumer);
+    var host = CreateWebHost(); 
+    AppDomain.CurrentDomain.ProcessExit += async (sender, e) => {
+      await host.StopAsync();
+    };
     host.Run();
   }
 
@@ -52,31 +45,63 @@ class Program {
     return text;
   }
   
-  private static void CreateOrWriteToLogFile
-  (bool createOnly, string filename, string textToWrite = "") {
-    try {
-      string exePath = System.Reflection.Assembly.GetEntryAssembly().Location;
-      string exeDir = Path.GetDirectoryName(exePath);
-      bool append = !createOnly;
-      using StreamWriter writer = new(exeDir + "/logs/" + filename, append);
-      if (append) {
-        writer.WriteLine(textToWrite);
-      }
-      writer.Close();
-    } catch (Exception e) {  
-      Console.WriteLine("error creating log file");
-    }
-  }
-
   private static string CreateLogText(HttpContext context, string text) {
     string address = context.Connection.RemoteIpAddress.ToString();
     string port = context.Connection.RemotePort.ToString();
     return text + " " + address + ":" + port;
   }
 
-  private static void ExitApp(IApplicationBuilder app) {
-    app.ApplicationServices.GetRequiredService
-      <IHostApplicationLifetime>().StopApplication();
+  private static IModel ConnectToRabbit() {
+    string? _rabbitmqName =
+    Environment.GetEnvironmentVariable("rabbitmqContainerName");
+    var factory = new ConnectionFactory { HostName = _rabbitmqName, Port=5672 };
+    var connection = factory.CreateConnection();
+    IModel channel = connection.CreateModel();
+    return channel;
+  }
+
+  private static EventingBasicConsumer CreateRabbitConsumer() {
+    var consumer = new EventingBasicConsumer(rabbitChannel);
+    consumer.Received += (model, ea) => {
+      var body = ea.Body.ToArray();
+      string msg = Encoding.UTF8.GetString(body);
+      HandleRabbitConsuming(msg);
+    };
+    return consumer;
+  }
+
+  private static void HandleRabbitConsuming(string msg) {
+    var text = msg + " MSG";
+    SendToRabbit(_rabbitTopic, "hi.log", text);     
+  }
+
+  private static void startRabbitConsuming(EventingBasicConsumer consumer) {
+    string queueName =
+    Environment.GetEnvironmentVariable("rabbitMessagesQueue");
+    rabbitChannel.BasicConsume(
+      queue: queueName,
+      autoAck: true,
+      consumer: consumer);
+  }
+
+  private static void SendToRabbit(string topic, string key, string msg) {
+    var body = Encoding.UTF8.GetBytes(msg);
+    rabbitChannel.BasicPublish(exchange: topic, routingKey: key, body: body);
+  }
+
+  private static IWebHost CreateWebHost() {
+    var host = new WebHostBuilder()
+      .UseKestrel()
+      .UseUrls(_url)
+      .Configure(app => {
+        app.Run(async (context) => {
+          string text = await GetValueByKeyFromRequestBody(context, "text");
+          text = CreateLogText(context, text);
+          SendToRabbit(_rabbitTopic, "hi.log", text);     
+        });
+      })
+      .Build();
+    return host;
   }
 
 }

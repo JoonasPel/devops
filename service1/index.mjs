@@ -30,7 +30,7 @@ const startLogger = async () => {
     const date = new Date();
     const text = `SND ${i} ${date.toISOString()} ${service2Address}:${service2Port}`;
     sendToRabbit(text, rabbitMessageTopic, 'hi.message');
-    const statusCode = await sendRequest(text) ?? -1;
+    const statusCode = await sendRequest(text) ?? 500;
     const newText = `${statusCode.toString()} ${new Date().toISOString()}`;
     sendToRabbit(newText, rabbitLogTopic, 'hi.log');
     await sleep(2000);
