@@ -68,7 +68,7 @@ public class Program {
       .Configure(app => {
         app.Run(async (context) => {
           context.Response.ContentType = "text/plain";
-          var text = string.Join("\n", _logTexts);
+          var text = string.Join("\n", _logTexts) + "\n";
           await context.Response.WriteAsync(text);
         });
       })
