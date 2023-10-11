@@ -27,6 +27,17 @@ services:
     networks:
       - app-network
 
+  monitorjoonaspelttari:
+    build:
+      context: ./monitor
+    container_name: monitorjoonaspelttari
+    ports:
+      - 8087:8087
+    networks:
+      - app-network
+    env_file:
+      - .env.configs
+
 networks:
   app-network:
     driver: bridge
