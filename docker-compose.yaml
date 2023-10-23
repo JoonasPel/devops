@@ -5,9 +5,11 @@ services:
     build:
       context: ./service1
     container_name: service1joonaspelttari
+    depends_on:
+      rabbitmqjoonaspelttari:
+        condition: service_healthy
     networks:
       - app-network
-    command: sh -c '/bin/wait-for-it.sh rabbitmqjoonaspelttari:5672 --timeout=100 -- node index.mjs'
     env_file:
       - .env.configs
 
@@ -15,24 +17,22 @@ services:
     build:
       context: ./service2
     container_name: service2joonaspelttari
+    depends_on:
+      rabbitmqjoonaspelttari:
+        condition: service_healthy
     networks:
       - app-network
-    entrypoint:
-      [
-        "/wait-for-it.sh",
-        "rabbitmqjoonaspelttari:5672",
-        "-t",
-        "100",
-        "--",
-        "dotnet",
-        "service.dll"
-      ]
     env_file:
       - .env.configs
 
   rabbitmqjoonaspelttari:
     image: rabbitmq:3.12-management-alpine
     container_name: rabbitmqjoonaspelttari
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 1s
+      timeout: 30s
+      retries: 100
     networks:
       - app-network
 
@@ -40,6 +40,9 @@ services:
     build:
       context: ./monitor
     container_name: monitorjoonaspelttari
+    depends_on:
+      rabbitmqjoonaspelttari:
+        condition: service_healthy
     ports:
       - 8087:8087
     networks:

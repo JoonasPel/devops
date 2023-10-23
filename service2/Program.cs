@@ -22,7 +22,7 @@ class Program
 
   public static void Main()
   {
-    Thread.Sleep(20000); // TODO wait-for-it.sh
+    Thread.Sleep(2000);  // sleep 2s to create some "lag" as instructed
     rabbitChannel = ConnectToRabbit();
     var consumer = CreateRabbitConsumer();
     startRabbitConsuming(consumer);

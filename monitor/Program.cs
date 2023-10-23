@@ -19,7 +19,6 @@ public class Program
 
   public static void Main()
   {
-    Thread.Sleep(20000); // todo wait-for-it.sh
     rabbitChannel = ConnectToRabbit();
     var consumer = CreateRabbitConsumer();
     StartRabbitConsuming(consumer);
