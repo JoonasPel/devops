@@ -13,13 +13,15 @@ public class Program
   private static readonly string?
   _port = Environment.GetEnvironmentVariable("monitorPort")
   , _containerName = Environment.GetEnvironmentVariable("monitorContainerName")
-  , _url = "http://" + _containerName + ":" + _port;
+  , _url = "http://" + _containerName + ":" + _port
+  , _queueName = Environment.GetEnvironmentVariable("rabbitLogsQueue");
   private static IModel? rabbitChannel;
   private static List<string> _logTexts = new List<string>();
 
   public static void Main()
   {
     rabbitChannel = ConnectToRabbit();
+    DeclareRabbitQueue();
     var consumer = CreateRabbitConsumer();
     StartRabbitConsuming(consumer);
 
@@ -41,6 +43,15 @@ public class Program
     return channel;
   }
 
+  private static void DeclareRabbitQueue()
+  {
+    rabbitChannel.QueueDeclare(
+      queue: _queueName,
+      durable: false,
+      exclusive: false,
+      autoDelete: false);
+  }
+
   private static EventingBasicConsumer CreateRabbitConsumer()
   {
     var consumer = new EventingBasicConsumer(rabbitChannel);
@@ -55,10 +66,8 @@ public class Program
 
   private static void StartRabbitConsuming(EventingBasicConsumer consumer)
   {
-    string? queueName =
-    Environment.GetEnvironmentVariable("rabbitLogsQueue");
     rabbitChannel.BasicConsume(
-      queue: queueName,
+      queue: _queueName,
       autoAck: true,
       consumer: consumer);
   }
