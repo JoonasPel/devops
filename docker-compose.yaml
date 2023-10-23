@@ -22,8 +22,6 @@ services:
   rabbitmqjoonaspelttari:
     image: rabbitmq:3.12-management-alpine
     container_name: rabbitmqjoonaspelttari
-    ports:
-      - 15672:15672
     networks:
       - app-network
 
