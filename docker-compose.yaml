@@ -7,6 +7,7 @@ services:
     container_name: service1joonaspelttari
     networks:
       - app-network
+    command: sh -c '/bin/wait-for-it.sh rabbitmqjoonaspelttari:5672 --timeout=100 -- node index.mjs'
     env_file:
       - .env.configs
 

@@ -1,6 +1,6 @@
 import dns from 'dns';
 import {
-  sleep, 
+  sleep,
   sendRequest,
   connectToRabbit,
   initRabbit,
@@ -11,10 +11,9 @@ import {
   rabbitLogTopic,
   closeGracefully,
 }
-from './utils/utils.mjs';
+  from './utils/utils.mjs';
 
 
-await sleep(15000); // todo replace with wait-for-it.sh
 await connectToRabbit();
 await initRabbit();
 process.on('SIGTERM', closeGracefully);
@@ -26,7 +25,7 @@ dns.lookup(service2name, (error, address) => {
 
 const startLogger = async () => {
   let i = 1;
-  while (i<21){
+  while (i < 21) {
     const date = new Date();
     const text = `SND ${i} ${date.toISOString()} ${service2Address}:${service2Port}`;
     sendToRabbit(text, rabbitMessageTopic, 'hi.message');
