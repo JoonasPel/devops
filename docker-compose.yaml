@@ -17,6 +17,16 @@ services:
     container_name: service2joonaspelttari
     networks:
       - app-network
+    entrypoint:
+      [
+        "/wait-for-it.sh",
+        "rabbitmqjoonaspelttari:5672",
+        "-t",
+        "100",
+        "--",
+        "dotnet",
+        "service.dll"
+      ]
     env_file:
       - .env.configs
 
