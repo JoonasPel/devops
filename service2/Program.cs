@@ -17,13 +17,15 @@ class Program
   _serviceName = Environment.GetEnvironmentVariable("service2ContainerName")
   , _port = Environment.GetEnvironmentVariable("service2Port")
   , _url = "http://" + _serviceName + ":" + _port
-  , _rabbitTopic = Environment.GetEnvironmentVariable("rabbitLogTopic");
+  , _rabbitTopic = Environment.GetEnvironmentVariable("rabbitLogTopic")
+  , _queueName = Environment.GetEnvironmentVariable("rabbitMessagesQueue");
   private static IModel? rabbitChannel;
 
   public static void Main()
   {
     Thread.Sleep(2000);  // sleep 2s to create some "lag" as instructed
     rabbitChannel = ConnectToRabbit();
+    DeclareRabbitQueue();
     var consumer = CreateRabbitConsumer();
     startRabbitConsuming(consumer);
     var host = CreateWebHost();
@@ -69,6 +71,15 @@ class Program
     return channel;
   }
 
+  private static void DeclareRabbitQueue()
+  {
+    rabbitChannel.QueueDeclare(
+      queue: _queueName,
+      durable: false,
+      exclusive: false,
+      autoDelete: false);
+  }
+
   private static EventingBasicConsumer CreateRabbitConsumer()
   {
     var consumer = new EventingBasicConsumer(rabbitChannel);
@@ -89,10 +100,8 @@ class Program
 
   private static void startRabbitConsuming(EventingBasicConsumer consumer)
   {
-    string queueName =
-    Environment.GetEnvironmentVariable("rabbitMessagesQueue");
     rabbitChannel.BasicConsume(
-      queue: queueName,
+      queue: _queueName,
       autoAck: true,
       consumer: consumer);
   }
