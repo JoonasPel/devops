@@ -11,58 +11,69 @@ using RabbitMQ.Client.Events;
 using System.Text;
 
 
-class Program {
-  private static readonly string? 
+class Program
+{
+  private static readonly string?
   _serviceName = Environment.GetEnvironmentVariable("service2ContainerName")
   , _port = Environment.GetEnvironmentVariable("service2Port")
-  , _url = "http://"+_serviceName+":"+_port
+  , _url = "http://" + _serviceName + ":" + _port
   , _rabbitTopic = Environment.GetEnvironmentVariable("rabbitLogTopic");
   private static IModel? rabbitChannel;
 
-  public static void Main() {
+  public static void Main()
+  {
     Thread.Sleep(20000); // TODO wait-for-it.sh
     rabbitChannel = ConnectToRabbit();
     var consumer = CreateRabbitConsumer();
     startRabbitConsuming(consumer);
-    var host = CreateWebHost(); 
-    AppDomain.CurrentDomain.ProcessExit += async (sender, e) => {
+    var host = CreateWebHost();
+    AppDomain.CurrentDomain.ProcessExit += async (sender, e) =>
+    {
       await host.StopAsync();
     };
     host.Run();
   }
 
   private static async Task<string> GetValueByKeyFromRequestBody
-    (HttpContext context, string key) {
+    (HttpContext context, string key)
+  {
     string text = "";
-    try {
+    try
+    {
       var body = await new StreamReader(context.Request.Body)
         .ReadToEndAsync();
-      var parsedBody = JsonSerializer.Deserialize<JsonElement>(body);  
+      var parsedBody = JsonSerializer.Deserialize<JsonElement>(body);
       text = parsedBody.GetProperty(key).ToString();
-    } catch (Exception e) {
+    }
+    catch (Exception e)
+    {
       Console.WriteLine($"error: {e.Message}");
     }
     return text;
   }
-  
-  private static string CreateLogText(HttpContext context, string text) {
+
+  private static string CreateLogText(HttpContext context, string text)
+  {
     string address = context.Connection.RemoteIpAddress.ToString();
     string port = context.Connection.RemotePort.ToString();
     return text + " " + address + ":" + port;
   }
 
-  private static IModel ConnectToRabbit() {
+  private static IModel ConnectToRabbit()
+  {
     string? _rabbitmqName =
     Environment.GetEnvironmentVariable("rabbitmqContainerName");
-    var factory = new ConnectionFactory { HostName = _rabbitmqName, Port=5672 };
+    var factory = new ConnectionFactory { HostName = _rabbitmqName, Port = 5672 };
     var connection = factory.CreateConnection();
     IModel channel = connection.CreateModel();
     return channel;
   }
 
-  private static EventingBasicConsumer CreateRabbitConsumer() {
+  private static EventingBasicConsumer CreateRabbitConsumer()
+  {
     var consumer = new EventingBasicConsumer(rabbitChannel);
-    consumer.Received += (model, ea) => {
+    consumer.Received += (model, ea) =>
+    {
       var body = ea.Body.ToArray();
       string msg = Encoding.UTF8.GetString(body);
       HandleRabbitConsuming(msg);
@@ -70,12 +81,14 @@ class Program {
     return consumer;
   }
 
-  private static void HandleRabbitConsuming(string msg) {
+  private static void HandleRabbitConsuming(string msg)
+  {
     var text = msg + " MSG";
-    SendToRabbit(_rabbitTopic, "hi.log", text);     
+    SendToRabbit(_rabbitTopic, "hi.log", text);
   }
 
-  private static void startRabbitConsuming(EventingBasicConsumer consumer) {
+  private static void startRabbitConsuming(EventingBasicConsumer consumer)
+  {
     string queueName =
     Environment.GetEnvironmentVariable("rabbitMessagesQueue");
     rabbitChannel.BasicConsume(
@@ -84,20 +97,24 @@ class Program {
       consumer: consumer);
   }
 
-  private static void SendToRabbit(string topic, string key, string msg) {
+  private static void SendToRabbit(string topic, string key, string msg)
+  {
     var body = Encoding.UTF8.GetBytes(msg);
     rabbitChannel.BasicPublish(exchange: topic, routingKey: key, body: body);
   }
 
-  private static IWebHost CreateWebHost() {
+  private static IWebHost CreateWebHost()
+  {
     var host = new WebHostBuilder()
       .UseKestrel()
       .UseUrls(_url)
-      .Configure(app => {
-        app.Run(async (context) => {
+      .Configure(app =>
+      {
+        app.Run(async (context) =>
+        {
           string text = await GetValueByKeyFromRequestBody(context, "text");
           text = CreateLogText(context, text);
-          SendToRabbit(_rabbitTopic, "hi.log", text);     
+          SendToRabbit(_rabbitTopic, "hi.log", text);
         });
       })
       .Build();
