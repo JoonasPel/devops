@@ -1,15 +1,4 @@
-sudo docker build --tag base
-
-sudo docker build --tag main .
-
-sudo docker run main
-
-sudo docker exec 9d115883315a ifconfig
-
-ssh ssluser@172.17.0.2 THEN ADD PASSWORD
-
-ansible-playbook -i inventory.ini playbook.yaml --extra-vars "ansible_user=ssluser ansible_password=123456789moi ansible_sudo_pass=123456789moi"
-GOT THIS OUTPUT (O1):
+(O1):
 
 PLAY [Joonaksen Play] ******************************************************************************
 
@@ -32,7 +21,7 @@ PLAY RECAP *********************************************************************
 172.17.0.2                 : ok=4    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
 172.17.0.3                 : ok=0    changed=0    unreachable=1    failed=0    skipped=0    rescued=0    ignored=0   
 
-SAME COMMAND AGAIN OUTPUT (O2):
+(O2):
  
 PLAY [Joonaksen Play] ******************************************************************************
 
@@ -56,7 +45,7 @@ PLAY RECAP *********************************************************************
 172.17.0.3                 : ok=0    changed=0    unreachable=1    failed=0    skipped=0    rescued=0    ignored=0   
 
 
-RUN SAME PLAYBOOK. OUTPUT 03:
+03:
  
 PLAY [Joonaksen Play] ******************************************************************************
 
@@ -85,7 +74,7 @@ PLAY RECAP *********************************************************************
 172.17.0.3                 : ok=4    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
 
 
-RUN PLAYBOOK AGAIN O4:
+O4:
  
 PLAY [Joonaksen Play] ******************************************************************************
 
