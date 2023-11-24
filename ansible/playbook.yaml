@@ -1,0 +1,17 @@
+- name: Joonaksen Play
+  hosts: myhosts
+  become: yes
+  tasks:
+    - name: Install and update git
+      package:
+        name: git
+        state: latest
+    
+    - name: Get system uptime in days
+      set_fact:
+        UPTIME_DAYS: "{{ (ansible_facts.uptime_seconds / 86400) | round(2) }}"
+      
+    - name: Print uptime
+      debug:
+        msg: "System uptime is {{UPTIME_DAYS}} days"
+    
