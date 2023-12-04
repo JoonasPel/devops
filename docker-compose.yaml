@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  service1joonaspelttari:
+    build:
+      context: ./service1
+    container_name: service1joonaspelttari
+    restart: on-failure
+    depends_on:
+      rabbitmqjoonaspelttari:
+        condition: service_healthy
+    networks:
+      - app-network
+    env_file:
+      - .env.configs
+
+  service2joonaspelttari:
+    build:
+      context: ./service2
+    container_name: service2joonaspelttari
+    restart: on-failure
+    depends_on:
+      rabbitmqjoonaspelttari:
+        condition: service_healthy
+    networks:
+      - app-network
+    env_file:
+      - .env.configs
+
+  rabbitmqjoonaspelttari:
+    image: rabbitmq:3.12
+    container_name: rabbitmqjoonaspelttari
+    restart: on-failure
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 1s
+      timeout: 30s
+      retries: 100
+    networks:
+      - app-network
+
+  monitorjoonaspelttari:
+    build:
+      context: ./monitor
+    container_name: monitorjoonaspelttari
+    restart: on-failure
+    depends_on:
+      rabbitmqjoonaspelttari:
+        condition: service_healthy
+    ports:
+      - 8087:8087
+    networks:
+      - app-network
+    env_file:
+      - .env.configs
+
+networks:
+  app-network:
+    driver: bridge
