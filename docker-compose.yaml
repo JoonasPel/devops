@@ -5,7 +5,7 @@ services:
     build:
       context: ./service1
     container_name: service1joonaspelttari
-    restart: on-failure
+    restart: unless-stopped
     depends_on:
       rabbitmqjoonaspelttari:
         condition: service_healthy
@@ -18,7 +18,7 @@ services:
     build:
       context: ./service2
     container_name: service2joonaspelttari
-    restart: on-failure
+    restart: unless-stopped
     depends_on:
       rabbitmqjoonaspelttari:
         condition: service_healthy
@@ -30,10 +30,10 @@ services:
   rabbitmqjoonaspelttari:
     image: rabbitmq:3.12
     container_name: rabbitmqjoonaspelttari
-    restart: on-failure
+    restart: unless-stopped
     healthcheck:
       test: rabbitmq-diagnostics check_port_connectivity
-      interval: 1s
+      interval: 10s
       timeout: 30s
       retries: 100
     networks:
@@ -43,7 +43,7 @@ services:
     build:
       context: ./monitor
     container_name: monitorjoonaspelttari
-    restart: on-failure
+    restart: unless-stopped
     depends_on:
       rabbitmqjoonaspelttari:
         condition: service_healthy
