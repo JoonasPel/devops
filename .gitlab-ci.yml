@@ -5,6 +5,6 @@ workflow:
 deploying:
   stage: deploy
   script:
-    - sudo docker-compose up --build
+    - docker-compose up --build
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
