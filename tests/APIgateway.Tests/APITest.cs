@@ -44,25 +44,25 @@ public class TestRESTAPI
   [Test]
   public void PUTstate()
   {
-    Assert.Fail("TESTS NOT IMPLEMENTED");
+    Assert.Ignore("TEST NOT IMPLEMENTED");
   }
 
   [Test]
   public void GETstate()
   {
-    Assert.Fail("TESTS NOT IMPLEMENTED");
+    Assert.Ignore("TEST NOT IMPLEMENTED");
   }
 
   [Test]
   public void GETrunlog()
   {
-    Assert.Fail("TESTS NOT IMPLEMENTED");
+    Assert.Ignore("TEST NOT IMPLEMENTED");
   }
 
   [Test]
   public void GETmqstatistic()
   {
-    Assert.Fail("TESTS NOT IMPLEMENTED");
+    Assert.Ignore("TEST NOT IMPLEMENTED");
   }
 }
 
