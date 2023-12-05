@@ -1,41 +1,68 @@
 using NUnit.Framework;
+using System.Net;
+using RestSharp;
 
 [TestFixture]
 public class TestRESTAPI
 {
-    [SetUp]
-    public void Setup()
-    {
-    }
+  private string baseUrl;
+  private RestClient client;
 
-    [Test]
-    public void GETmessages()
+  [SetUp]
+  public void Setup()
+  {
+    baseUrl = "http://localhost:8087";
+    client = new RestClient(baseUrl);
+  }
+
+  [Test]
+  public void GETmessages()
+  {
+    string url = baseUrl + "/messages";
+    RestRequest request = new RestRequest(url, Method.Get);
+    RestResponse response = client.Execute(request);
+
+    int status = (int)response.StatusCode;
+    Assert.AreEqual(200, status, "statusCode check");
+
+    string? contentType = response.ContentType;
+    Assert.AreEqual("text/plain", contentType, "content-type check");
+
+    if (response.Content != null)
     {
-        Assert.Fail("TESTS NOT IMPLEMENTED");
+      string[] logs = response.Content.Split('\n');
+      string firstLog = logs.FirstOrDefault("");
+      Assert.IsTrue(firstLog.Contains('Z'),
+        "log should contain Z (date ends with it)");
     }
-    
-    [Test]
-    public void PUTstate()
+    else
     {
-        Assert.Fail("TESTS NOT IMPLEMENTED");
+      Assert.Fail("response didnt have a body");
     }
-    
-    [Test]
-    public void GETstate()
-    {
-        Assert.Fail("TESTS NOT IMPLEMENTED");
-    }
-    
-    [Test]
-    public void GETrunlog()
-    {
-        Assert.Fail("TESTS NOT IMPLEMENTED");
-    }
-    
-    [Test]
-    public void GETmqstatistic()
-    {
-        Assert.Fail("TESTS NOT IMPLEMENTED");
-    }
+  }
+
+  [Test]
+  public void PUTstate()
+  {
+    Assert.Fail("TESTS NOT IMPLEMENTED");
+  }
+
+  [Test]
+  public void GETstate()
+  {
+    Assert.Fail("TESTS NOT IMPLEMENTED");
+  }
+
+  [Test]
+  public void GETrunlog()
+  {
+    Assert.Fail("TESTS NOT IMPLEMENTED");
+  }
+
+  [Test]
+  public void GETmqstatistic()
+  {
+    Assert.Fail("TESTS NOT IMPLEMENTED");
+  }
 }
 
