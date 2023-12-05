@@ -11,7 +11,7 @@ public class TestRESTAPI
   [SetUp]
   public void Setup()
   {
-    baseUrl = "http://localhost:8087";
+    baseUrl = "http://localhost:8083";
     client = new RestClient(baseUrl);
   }
 
