@@ -47,12 +47,23 @@ services:
     depends_on:
       rabbitmqjoonaspelttari:
         condition: service_healthy
-    ports:
-      - 8087:8087
     networks:
       - app-network
     env_file:
       - .env.configs
+
+  apigatewayjoonaspelttari:
+    build:
+      context: ./APIgateway
+    container_name: apigatewayjoonaspelttari
+    restart: unless-stopped
+    depends_on:
+      rabbitmqjoonaspelttari:
+        condition: service_healthy
+    ports:
+      - 8083:8083
+    networks:
+      - app-network
 
 networks:
   app-network:
