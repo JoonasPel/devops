@@ -1,18 +1,26 @@
 workflow:
   rules:
     - if: '$CI_COMMIT_BRANCH'
-    
-tests:
+
+stages:
+  -  build
+  -  test
+  
+ build_app:
+  stage: build
+  script:
+    - sudo docker-compose up --build  --detach
+    - sleep 180
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+test_app:
   stage: test
   script:
     - cd tests/monitor.Tests
     - dotnet test
-
-deploying:
-  stage: deploy
-  script:
-    - sudo docker-compose up --build
-    - sleep 180
+  after_script:
     - sudo docker-compose down
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
+
