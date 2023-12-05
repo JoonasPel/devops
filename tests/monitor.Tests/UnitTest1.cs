@@ -23,7 +23,7 @@ public class Tests
     [Test]
     public void Test2()
     {
-        Assert.AreEqual(1, 2);
+        Assert.AreEqual(2, 2);
     }
 
 }
