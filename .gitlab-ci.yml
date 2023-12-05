@@ -10,7 +10,7 @@ build_app:
   stage: build
   script:
     - sudo docker-compose up --build  --detach
-    - sleep 180
+    - sleep 10
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
 
