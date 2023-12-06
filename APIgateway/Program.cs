@@ -1,4 +1,5 @@
 using System.Text;
+using System.Globalization;
 
 public class Program
 {
@@ -6,6 +7,7 @@ public class Program
     "INIT", "RUNNING", "PAUSED"
   };
   private static string currentState = "INIT";
+  private static List<string> stateHistory = new List<string>();
 
   public static void Main()
   {
@@ -38,7 +40,7 @@ public class Program
           context.Request.Body).ReadToEndAsync();
         if (validStates.Contains(newState))
         {
-          currentState = newState;
+          UpdateState(newState);
           using HttpResponseMessage response = await client.PutAsync(
             "http://service1joonaspelttari:3000", new StringContent(
               newState, Encoding.UTF8, "text/plain"));
@@ -50,7 +52,7 @@ public class Program
           string state = await response.Content.ReadAsStringAsync();
           if (validStates.Contains(state))
           {
-            currentState = state;
+            UpdateState(state);
           }
         }
       }
@@ -63,13 +65,25 @@ public class Program
 
     app.MapGet("/state", () => currentState);
 
+    app.MapGet("/run-log", () =>
+    {
+      return string.Join('\n', stateHistory);
+    });
+
     app.Run();
   }
 
+  // Updates the current state and saves state history.
+  // If given same state than already is, does nothing.
+  private static void UpdateState(string newState)
+  {
+    if (newState != currentState)
+    {
+      string currentDateTime = DateTime.UtcNow.ToString(
+        "yyyy-MM-ddTHH:mm:ss.fffZ", CultureInfo.InvariantCulture);
+      stateHistory.Add($"{currentDateTime}: {currentState}->{newState}");
+      currentState = newState;
+    }
+  }
+
 }
-
-
-
-
-
-
