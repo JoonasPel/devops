@@ -76,7 +76,19 @@ public class TestRESTAPI
   [Test]
   public void GETrunlog()
   {
-    Assert.Ignore("TEST NOT IMPLEMENTED");
+    // Change state to PAUSED and then to RUNNING and check that the last
+    // log ends with "PAUSED->RUNNING"
+    RestRequest pauseRequest = new RestRequest("/state", Method.Put);
+    pauseRequest.AddParameter("text/plain", "PAUSED", ParameterType.RequestBody);
+    client.Execute(pauseRequest);
+    Thread.Sleep(500);
+    RestRequest runningRequest = new RestRequest("/state", Method.Put);
+    runningRequest.AddParameter("text/plain", "RUNNING", ParameterType.RequestBody);
+    client.Execute(runningRequest);
+    Thread.Sleep(500);
+    RestRequest runLogRequest = new RestRequest("/run-log", Method.Get);
+    RestResponse response = client.Execute(runLogRequest);
+    Assert.AreEqual("PAUSED->RUNNING", response.Content[^15..]);
   }
 
   [Test]
