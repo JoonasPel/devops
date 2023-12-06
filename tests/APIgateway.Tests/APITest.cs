@@ -88,7 +88,14 @@ public class TestRESTAPI
     Thread.Sleep(500);
     RestRequest runLogRequest = new RestRequest("/run-log", Method.Get);
     RestResponse response = client.Execute(runLogRequest);
-    Assert.AreEqual("PAUSED->RUNNING", response.Content[^15..]);
+    try
+    {
+      Assert.AreEqual("PAUSED->RUNNING", response.Content[^15..]);
+    }
+    catch
+    {
+      Assert.Fail("Failed to get valid response from /run-log");
+    }
   }
 
   [Test]
