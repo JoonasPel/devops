@@ -80,7 +80,7 @@ const startServer = async () => {
         res.status(400);
         break;
     }
-    res.send();
+    res.send(currentState);
   });
 
   app.listen(3000);
