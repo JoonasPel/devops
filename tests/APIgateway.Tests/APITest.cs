@@ -18,8 +18,7 @@ public class TestRESTAPI
   [Test]
   public void GETmessages()
   {
-    string url = baseUrl + "/messages";
-    RestRequest request = new RestRequest(url, Method.Get);
+    RestRequest request = new RestRequest("/messages", Method.Get);
     RestResponse response = client.Execute(request);
 
     int status = (int)response.StatusCode;
@@ -42,7 +41,7 @@ public class TestRESTAPI
   }
 
   [Test]
-  public void PUTstate()
+  public void PUTzstate()
   {
     Assert.Ignore("TEST NOT IMPLEMENTED");
   }
