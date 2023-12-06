@@ -63,13 +63,14 @@ public class TestRESTAPI
     Thread.Sleep(1000);
     RestResponse response3 = client.Execute(getStateRequest);
     Assert.AreEqual("RUNNING", response3.Content);
-    // Change state to INIT and check it worked
+    // Change state to INIT and check it is soon RUNNING because INIT changes
+    // to RUNNING automatically!
     RestRequest initRequest = new RestRequest("/state", Method.Put);
     initRequest.AddParameter("text/plain", "INIT", ParameterType.RequestBody);
     client.Execute(initRequest);
     Thread.Sleep(1000);
     RestResponse response4 = client.Execute(getStateRequest);
-    Assert.AreEqual("INIT", response4.Content);
+    Assert.AreEqual("RUNNING", response4.Content);
   }
 
   [Test]
