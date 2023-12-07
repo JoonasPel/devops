@@ -3,9 +3,18 @@ workflow:
     - if: "$CI_COMMIT_BRANCH"
 
 stages:
+  - lint
   - build
   - test
   - deploy
+
+lint_APIgateway:
+  stage: lint
+  script:
+    - dotnet clean
+    - dotnet format --verify-no-changes
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
 
 build_app:
   stage: build
