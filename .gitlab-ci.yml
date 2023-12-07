@@ -11,6 +11,7 @@ stages:
 lint_APIgateway:
   stage: lint
   script:
+    - cd APIgateway
     - dotnet clean
     - dotnet format --verify-no-changes
   rules:
