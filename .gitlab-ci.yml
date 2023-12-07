@@ -5,6 +5,7 @@ workflow:
 stages:
   - build
   - test
+  - deploy
 
 build_app:
   stage: build
@@ -22,5 +23,12 @@ test_app:
     - dotnet test
   after_script:
     - sudo docker-compose down
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+deploy_app:
+  stage: deploy
+  script:
+    - sudo docker-compose up --detach
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
