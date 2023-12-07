@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using System.Net;
 using RestSharp;
+using System.Text.Json.Nodes;
 
 [TestFixture]
 public class TestRESTAPI
@@ -101,7 +102,20 @@ public class TestRESTAPI
   [Test]
   public void GETmqstatistic()
   {
-    Assert.Ignore("TEST NOT IMPLEMENTED");
+    // Get the statistics and check that the string is valid JSON
+    // and also try to find one statistic I will add (consumersOnline)
+    RestRequest request = new RestRequest("/mqstatistic", Method.Get);
+    RestResponse response = client.Execute(request);
+    string stats = response?.Content ?? "";
+    try
+    {
+      JsonValue.Parse(stats);
+    }
+    catch
+    {
+      Assert.Fail("Invalid JSON!");
+    }
+    Assert.IsTrue(stats.Contains("consumersOnline"));
   }
 }
 
