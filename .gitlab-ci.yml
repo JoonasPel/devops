@@ -9,13 +9,14 @@ stages:
 build_app:
   stage: build
   script:
-    - sudo docker-compose up --build  --detach
-    - sleep 10
+    - sudo docker-compose build --no-cache
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
 
 test_app:
   stage: test
+  before_script:
+    - sudo docker-compose up --detach
   script:
     - cd tests/APIgateway.Tests
     - dotnet test
