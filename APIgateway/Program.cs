@@ -5,9 +5,22 @@ using System.Net.Http.Headers;
 
 public class Program
 {
-  private static string rabbitBaseUrl =
-  "http://rabbitmqjoonaspelttari:15672/api";
-  private static HashSet<string> validStates = new HashSet<string>(){
+  // env variables
+  private static readonly string?
+    _logsQueue = Environment.GetEnvironmentVariable("rabbitLogsQueue")
+  , _messagesQueue = Environment.GetEnvironmentVariable("rabbitMessagesQueue")
+  , _rabbitContainer = Environment.GetEnvironmentVariable("rabbitmqContainerName")
+  , _rabbitManagementPort = Environment.GetEnvironmentVariable("rabbitManagementPort")
+  , _rabbitBaseUrl = "http://" + _rabbitContainer + ":" + _rabbitManagementPort + "/api"
+  , _monitorContainer = Environment.GetEnvironmentVariable("monitorContainerName")
+  , _monitorPort = Environment.GetEnvironmentVariable("monitorPort")
+  , _monitorUrl = "http://" + _monitorContainer + ":" + _monitorPort
+  , _service1Container = Environment.GetEnvironmentVariable("service1ContainerName")
+  , _service1Port = Environment.GetEnvironmentVariable("service1Port")
+  , _service1Url = "http://" + _service1Container + ":" + _service1Port;
+
+  private static HashSet<string> validStates = new HashSet<string>()
+  {
     "INIT", "RUNNING", "PAUSED"
   };
   private static string currentState = "INIT";
@@ -24,8 +37,7 @@ public class Program
     {
       try
       {
-        using HttpResponseMessage response = await client.GetAsync(
-          "http://monitorjoonaspelttari:8087");
+        using HttpResponseMessage response = await client.GetAsync(_monitorUrl);
         response.EnsureSuccessStatusCode();
         string body = await response.Content.ReadAsStringAsync();
         return body;
@@ -45,9 +57,8 @@ public class Program
         if (validStates.Contains(newState))
         {
           UpdateState(newState);
-          using HttpResponseMessage response = await client.PutAsync(
-            "http://service1joonaspelttari:3000", new StringContent(
-              newState, Encoding.UTF8, "text/plain"));
+          using HttpResponseMessage response = await client.PutAsync(_service1Url,
+            new StringContent(newState, Encoding.UTF8, "text/plain"));
           response.EnsureSuccessStatusCode();
           /* if we send INIT to service1, it inits and then returns its new 
           state (RUNNING) so we change it here to make sure we have right
@@ -84,17 +95,17 @@ public class Program
           Encoding.ASCII.GetBytes("guest:guest"));
         client.DefaultRequestHeaders.Authorization =
           new AuthenticationHeaderValue("Basic", authHeaderValue);
-        string url = rabbitBaseUrl + "/overview";
+        string url = _rabbitBaseUrl + "/overview";
         using HttpResponseMessage response = await client.GetAsync(url);
         response.EnsureSuccessStatusCode();
         string body = await response.Content.ReadAsStringAsync();
         dynamic jsonOverall = JsonConvert.DeserializeObject(body);
-        url = rabbitBaseUrl + "/queues/%2F/messagesQueue";
+        url = _rabbitBaseUrl + "/queues/%2F/" + _messagesQueue;
         using HttpResponseMessage response2 = await client.GetAsync(url);
         response2.EnsureSuccessStatusCode();
         body = await response2.Content.ReadAsStringAsync();
         dynamic jsonQueue1 = JsonConvert.DeserializeObject(body);
-        url = rabbitBaseUrl + "/queues/%2F/logsQueue";
+        url = _rabbitBaseUrl + "/queues/%2F/" + _logsQueue;
         using HttpResponseMessage response3 = await client.GetAsync(url);
         response3.EnsureSuccessStatusCode();
         body = await response3.Content.ReadAsStringAsync();
