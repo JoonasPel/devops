@@ -28,7 +28,7 @@ services:
       - .env.configs
 
   rabbitmqjoonaspelttari:
-    image: rabbitmq:3.12
+    image: rabbitmq:3.12-management
     container_name: rabbitmqjoonaspelttari
     restart: unless-stopped
     healthcheck:
