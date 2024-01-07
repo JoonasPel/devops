@@ -49,4 +49,4 @@ And in addition for each queue, return the following: \
 
 ### SYSTEM STATES
 
-![architecture](https://github.com/JoonasPel/devops/blob/project/images/architecture.PNG?raw=true)
+![architecture](https://github.com/JoonasPel/devops/blob/project/images/states.PNG?raw=true)
