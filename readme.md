@@ -1,3 +1,5 @@
+This Project contains several Docker containers that work together. Service1 acts as a logging system, sending information to Service2 as well as to a RabbitMQ queue, and through these, the data ends up on a monitor container that controls them. In addition, there is an API gateway that receives external requests for logging information, RabbitMQ data, and system management (pause, continue, init). For this project, I created a simple CI/CD Pipeline with GitLab Runner, which ran on my VirtualBox Ubuntu. The pipeline runs linting, builds, runs tests, performs cleanup regardless of the test results!, and deploys the application to Ubuntu. The languages used are C# and Node.js.
+
 ![architecture](https://github.com/JoonasPel/devops/blob/project/images/architecture.PNG?raw=true)
 
 ### API:
